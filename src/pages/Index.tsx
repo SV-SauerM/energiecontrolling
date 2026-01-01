@@ -3,6 +3,7 @@ import { Header } from '@/components/Header';
 import { StatCard } from '@/components/StatCard';
 import { MeterReadingForm } from '@/components/MeterReadingForm';
 import { WarningBanner } from '@/components/WarningBanner';
+import { CSVImportExport } from '@/components/CSVImportExport';
 import { WaterChart } from '@/components/charts/WaterChart';
 import { ElectricityChart } from '@/components/charts/ElectricityChart';
 import { HeatingChart } from '@/components/charts/HeatingChart';
@@ -13,12 +14,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const Index = () => {
   const {
+    meterReadings,
     consumptionData,
     yearlyData,
     warnings,
     latestReading,
     isLoading,
     addReading,
+    setReadings,
   } = useEnergyData();
 
   const latestConsumption = consumptionData.length > 0 
@@ -68,10 +71,13 @@ const Index = () => {
               }
             </p>
           </div>
-          <MeterReadingForm 
-            onSubmit={addReading} 
-            defaultValues={latestReading ?? undefined}
-          />
+          <div className="flex gap-2">
+            <CSVImportExport readings={meterReadings} onImport={setReadings} />
+            <MeterReadingForm 
+              onSubmit={addReading} 
+              defaultValues={latestReading ?? undefined}
+            />
+          </div>
         </div>
 
         {/* Stats Grid */}
