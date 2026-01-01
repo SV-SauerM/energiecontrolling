@@ -84,6 +84,14 @@ export const useEnergyData = () => {
     setMeterReadings(prev => prev.filter(r => r.id !== id));
   };
 
+  // Set all readings (for import)
+  const setReadings = (readings: MeterReading[]) => {
+    const sorted = [...readings].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+    setMeterReadings(sorted);
+  };
+
   // Get latest reading for form defaults
   const latestReading = useMemo(() => {
     if (meterReadings.length === 0) return null;
@@ -102,5 +110,6 @@ export const useEnergyData = () => {
     addReading,
     updateReading,
     deleteReading,
+    setReadings,
   };
 };
