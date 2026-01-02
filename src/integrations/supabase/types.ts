@@ -14,7 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      meter_readings: {
+        Row: {
+          cold_water: number
+          created_at: string
+          date: string
+          electricity_light: number
+          garden_water: number
+          heating_ht: number
+          heating_nt: number
+          id: string
+          pv_feed_in: number
+          pv_yield: number
+          updated_at: string
+        }
+        Insert: {
+          cold_water?: number
+          created_at?: string
+          date: string
+          electricity_light?: number
+          garden_water?: number
+          heating_ht?: number
+          heating_nt?: number
+          id?: string
+          pv_feed_in?: number
+          pv_yield?: number
+          updated_at?: string
+        }
+        Update: {
+          cold_water?: number
+          created_at?: string
+          date?: string
+          electricity_light?: number
+          garden_water?: number
+          heating_ht?: number
+          heating_nt?: number
+          id?: string
+          pv_feed_in?: number
+          pv_yield?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      meter_replacements: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          meter_type: string
+          new_initial_reading: number
+          notes: string | null
+          old_final_reading: number
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          meter_type: string
+          new_initial_reading?: number
+          notes?: string | null
+          old_final_reading: number
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          meter_type?: string
+          new_initial_reading?: number
+          notes?: string | null
+          old_final_reading?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
