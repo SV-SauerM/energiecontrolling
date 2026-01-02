@@ -10,6 +10,15 @@ export interface MeterReading {
   pvFeedIn: number;
 }
 
+export interface MeterReplacement {
+  id: string;
+  date: string;
+  meterType: 'cold_water' | 'garden_water' | 'electricity_light' | 'heating_ht' | 'heating_nt' | 'pv_yield' | 'pv_feed_in';
+  oldFinalReading: number;
+  newInitialReading: number;
+  notes?: string;
+}
+
 export interface ConsumptionData {
   id: string;
   date: string;
@@ -43,3 +52,13 @@ export interface Warning {
   currentValue: number;
   averageValue: number;
 }
+
+export const METER_TYPE_LABELS: Record<MeterReplacement['meterType'], string> = {
+  cold_water: 'Kaltwasser',
+  garden_water: 'Gartenwasser',
+  electricity_light: 'Strom Licht',
+  heating_ht: 'Heizung HT',
+  heating_nt: 'Heizung NT',
+  pv_yield: 'PV Ertrag',
+  pv_feed_in: 'PV Einspeisung',
+};
