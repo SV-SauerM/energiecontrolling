@@ -1,8 +1,63 @@
-import { MeterReading, ConsumptionData, YearlyConsumption, Warning } from '@/types/energy';
+import { MeterReading, ConsumptionData, YearlyConsumption, Warning, MeterReplacement } from '@/types/energy';
+
+// Helper to get meter replacements between two dates for a specific meter type
+const getMeterReplacementsBetween = (
+  replacements: MeterReplacement[],
+  meterType: MeterReplacement['meterType'],
+  startDate: string,
+  endDate: string
+): MeterReplacement[] => {
+  return replacements.filter(r => 
+    r.meterType === meterType &&
+    new Date(r.date) > new Date(startDate) &&
+    new Date(r.date) <= new Date(endDate)
+  );
+};
+
+// Calculate consumption accounting for meter replacements
+const calculateMeterConsumption = (
+  current: number,
+  previous: number,
+  meterType: MeterReplacement['meterType'],
+  currentDate: string,
+  previousDate: string,
+  replacements: MeterReplacement[]
+): number => {
+  const relevantReplacements = getMeterReplacementsBetween(
+    replacements,
+    meterType,
+    previousDate,
+    currentDate
+  );
+
+  if (relevantReplacements.length === 0) {
+    return Math.max(0, current - previous);
+  }
+
+  // If there was a meter replacement, calculate consumption as:
+  // (old final reading - previous reading) + (current reading - new initial reading)
+  let consumption = 0;
+  let lastReading = previous;
+  let lastDate = previousDate;
+
+  for (const replacement of relevantReplacements) {
+    // Add consumption up to the replacement
+    consumption += Math.max(0, replacement.oldFinalReading - lastReading);
+    // Start from new meter initial reading
+    lastReading = replacement.newInitialReading;
+    lastDate = replacement.date;
+  }
+
+  // Add consumption from last replacement to current
+  consumption += Math.max(0, current - lastReading);
+
+  return consumption;
+};
 
 export const calculateConsumption = (
   current: MeterReading,
-  previous: MeterReading | null
+  previous: MeterReading | null,
+  replacements: MeterReplacement[] = []
 ): ConsumptionData => {
   const date = new Date(current.date);
   const month = date.toLocaleDateString('de-DE', { month: 'short', year: 'numeric' });
@@ -27,13 +82,34 @@ export const calculateConsumption = (
     };
   }
 
-  const coldWater = Math.max(0, current.coldWater - previous.coldWater);
-  const gardenWater = Math.max(0, current.gardenWater - previous.gardenWater);
-  const electricityLight = Math.max(0, current.electricityLight - previous.electricityLight);
-  const heatingHT = Math.max(0, current.heatingHT - previous.heatingHT);
-  const heatingNT = Math.max(0, current.heatingNT - previous.heatingNT);
-  const pvYield = Math.max(0, current.pvYield - previous.pvYield);
-  const pvFeedIn = Math.max(0, current.pvFeedIn - previous.pvFeedIn);
+  const coldWater = calculateMeterConsumption(
+    current.coldWater, previous.coldWater, 'cold_water', 
+    current.date, previous.date, replacements
+  );
+  const gardenWater = calculateMeterConsumption(
+    current.gardenWater, previous.gardenWater, 'garden_water',
+    current.date, previous.date, replacements
+  );
+  const electricityLight = calculateMeterConsumption(
+    current.electricityLight, previous.electricityLight, 'electricity_light',
+    current.date, previous.date, replacements
+  );
+  const heatingHT = calculateMeterConsumption(
+    current.heatingHT, previous.heatingHT, 'heating_ht',
+    current.date, previous.date, replacements
+  );
+  const heatingNT = calculateMeterConsumption(
+    current.heatingNT, previous.heatingNT, 'heating_nt',
+    current.date, previous.date, replacements
+  );
+  const pvYield = calculateMeterConsumption(
+    current.pvYield, previous.pvYield, 'pv_yield',
+    current.date, previous.date, replacements
+  );
+  const pvFeedIn = calculateMeterConsumption(
+    current.pvFeedIn, previous.pvFeedIn, 'pv_feed_in',
+    current.date, previous.date, replacements
+  );
 
   return {
     id: current.id,
@@ -150,19 +226,3 @@ export const formatNumber = (value: number, decimals: number = 1): string => {
     maximumFractionDigits: decimals,
   });
 };
-
-// Sample data for demonstration
-export const sampleMeterReadings: MeterReading[] = [
-  { id: '1', date: '2024-01-01', coldWater: 100, gardenWater: 20, electricityLight: 5000, heatingHT: 3000, heatingNT: 2000, pvYield: 200, pvFeedIn: 150 },
-  { id: '2', date: '2024-02-01', coldWater: 112, gardenWater: 20, electricityLight: 5280, heatingHT: 3450, heatingNT: 2300, pvYield: 380, pvFeedIn: 280 },
-  { id: '3', date: '2024-03-01', coldWater: 124, gardenWater: 22, electricityLight: 5520, heatingHT: 3800, heatingNT: 2520, pvYield: 650, pvFeedIn: 480 },
-  { id: '4', date: '2024-04-01', coldWater: 138, gardenWater: 28, electricityLight: 5750, heatingHT: 4050, heatingNT: 2680, pvYield: 1100, pvFeedIn: 850 },
-  { id: '5', date: '2024-05-01', coldWater: 155, gardenWater: 42, electricityLight: 5980, heatingHT: 4180, heatingNT: 2780, pvYield: 1650, pvFeedIn: 1300 },
-  { id: '6', date: '2024-06-01', coldWater: 175, gardenWater: 65, electricityLight: 6200, heatingHT: 4250, heatingNT: 2830, pvYield: 2100, pvFeedIn: 1700 },
-  { id: '7', date: '2024-07-01', coldWater: 198, gardenWater: 95, electricityLight: 6420, heatingHT: 4300, heatingNT: 2860, pvYield: 2500, pvFeedIn: 2050 },
-  { id: '8', date: '2024-08-01', coldWater: 220, gardenWater: 120, electricityLight: 6650, heatingHT: 4350, heatingNT: 2890, pvYield: 2350, pvFeedIn: 1900 },
-  { id: '9', date: '2024-09-01', coldWater: 238, gardenWater: 130, electricityLight: 6880, heatingHT: 4420, heatingNT: 2940, pvYield: 1800, pvFeedIn: 1400 },
-  { id: '10', date: '2024-10-01', coldWater: 252, gardenWater: 132, electricityLight: 7130, heatingHT: 4600, heatingNT: 3080, pvYield: 1100, pvFeedIn: 800 },
-  { id: '11', date: '2024-11-01', coldWater: 264, gardenWater: 132, electricityLight: 7400, heatingHT: 4900, heatingNT: 3280, pvYield: 500, pvFeedIn: 350 },
-  { id: '12', date: '2024-12-01', coldWater: 275, gardenWater: 132, electricityLight: 7700, heatingHT: 5250, heatingNT: 3520, pvYield: 280, pvFeedIn: 180 },
-];
