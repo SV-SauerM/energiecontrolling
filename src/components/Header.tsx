@@ -1,11 +1,13 @@
-import { Moon, Sun, Activity, Database } from 'lucide-react';
+import { Moon, Sun, Activity, Database, LogOut } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 
 export const Header = () => {
   const [isDark, setIsDark] = useState(true);
   const location = useLocation();
+  const { signOut } = useAuth();
 
   useEffect(() => {
     // Default to dark mode
@@ -55,6 +57,15 @@ export const Header = () => {
               ) : (
                 <Moon className="w-5 h-5" />
               )}
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={signOut}
+              className="rounded-xl text-destructive hover:text-destructive"
+              title="Abmelden"
+            >
+              <LogOut className="w-5 h-5" />
             </Button>
           </div>
         </div>
