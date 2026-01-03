@@ -7,6 +7,7 @@ import { useEnergyData } from '@/hooks/useEnergyData';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MeterReadingEditDialog } from '@/components/MeterReadingEditDialog';
 import { MeterReplacementForm } from '@/components/MeterReplacementForm';
+import { MeterInfoManager } from '@/components/MeterInfoManager';
 import {
   Table,
   TableBody,
@@ -82,6 +83,7 @@ const DataManagement = () => {
           <TabsList>
             <TabsTrigger value="readings">Zählerstände</TabsTrigger>
             <TabsTrigger value="replacements">Zählerwechsel</TabsTrigger>
+            <TabsTrigger value="info">Zählernummern</TabsTrigger>
           </TabsList>
 
           <TabsContent value="readings">
@@ -260,6 +262,10 @@ const DataManagement = () => {
                 </div>
               )}
             </div>
+          </TabsContent>
+
+          <TabsContent value="info">
+            <MeterInfoManager />
           </TabsContent>
         </Tabs>
       </main>

@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      meter_info: {
+        Row: {
+          id: string
+          meter_number: string | null
+          meter_type: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          meter_number?: string | null
+          meter_type: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          meter_number?: string | null
+          meter_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       meter_readings: {
         Row: {
           cold_water: number
