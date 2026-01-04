@@ -10,6 +10,7 @@ import { HeatingChart } from '@/components/charts/HeatingChart';
 import { SolarChart } from '@/components/charts/SolarChart';
 import { YearlyComparison } from '@/components/charts/YearlyComparison';
 import { useEnergyData } from '@/hooks/useEnergyData';
+import { useMeterInfo } from '@/hooks/useMeterInfo';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const Index = () => {
@@ -23,6 +24,7 @@ const Index = () => {
     addReading,
     setReadings,
   } = useEnergyData();
+  const { meterInfo } = useMeterInfo();
 
   const latestConsumption = consumptionData.length > 0 
     ? consumptionData[consumptionData.length - 1] 
@@ -90,6 +92,7 @@ const Index = () => {
               icon={<Droplets className="w-5 h-5" />}
               type="water"
               previousValue={previousConsumption?.totalWater}
+              meterNumber={meterInfo['cold_water']}
             />
             <StatCard
               title="Strom Licht"
@@ -98,6 +101,7 @@ const Index = () => {
               icon={<Zap className="w-5 h-5" />}
               type="electricity"
               previousValue={previousConsumption?.electricityLight}
+              meterNumber={meterInfo['electricity_light']}
             />
             <StatCard
               title="Heizstrom"
@@ -106,6 +110,7 @@ const Index = () => {
               icon={<Flame className="w-5 h-5" />}
               type="heating"
               previousValue={previousConsumption?.totalHeating}
+              meterNumber={meterInfo['heating_ht']}
             />
             <StatCard
               title="PV Eigenverbrauch"
@@ -114,6 +119,7 @@ const Index = () => {
               icon={<Sun className="w-5 h-5" />}
               type="solar"
               previousValue={previousConsumption?.pvSelfConsumption}
+              meterNumber={meterInfo['pv_yield']}
             />
           </div>
         )}

@@ -14,6 +14,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { MeterReading } from '@/types/energy';
+import { useMeterInfo } from '@/hooks/useMeterInfo';
 
 const formSchema = z.object({
   date: z.string().min(1, 'Datum ist erforderlich'),
@@ -35,6 +36,7 @@ interface MeterReadingFormProps {
 
 export const MeterReadingForm = ({ onSubmit, defaultValues }: MeterReadingFormProps) => {
   const [open, setOpen] = useState(false);
+  const { meterInfo } = useMeterInfo();
 
   const {
     register,
@@ -54,6 +56,11 @@ export const MeterReadingForm = ({ onSubmit, defaultValues }: MeterReadingFormPr
       pvFeedIn: defaultValues?.pvFeedIn ?? 0,
     },
   });
+
+  const getMeterLabel = (type: string, name: string) => {
+    const number = meterInfo[type];
+    return number ? `${name} (${number})` : name;
+  };
 
   const onFormSubmit = (data: FormData) => {
     onSubmit({
@@ -109,7 +116,7 @@ export const MeterReadingForm = ({ onSubmit, defaultValues }: MeterReadingFormPr
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="coldWater">Kaltwasser</Label>
+                <Label htmlFor="coldWater">{getMeterLabel('cold_water', 'Kaltwasser')}</Label>
                 <Input
                   id="coldWater"
                   type="number"
@@ -122,7 +129,7 @@ export const MeterReadingForm = ({ onSubmit, defaultValues }: MeterReadingFormPr
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="gardenWater">Gartenwasser</Label>
+                <Label htmlFor="gardenWater">{getMeterLabel('garden_water', 'Gartenwasser')}</Label>
                 <Input
                   id="gardenWater"
                   type="number"
@@ -144,7 +151,7 @@ export const MeterReadingForm = ({ onSubmit, defaultValues }: MeterReadingFormPr
               <span className="font-medium">Strom (kWh)</span>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="electricityLight">Strom Licht</Label>
+              <Label htmlFor="electricityLight">{getMeterLabel('electricity_light', 'Strom Licht')}</Label>
               <Input
                 id="electricityLight"
                 type="number"
@@ -166,7 +173,7 @@ export const MeterReadingForm = ({ onSubmit, defaultValues }: MeterReadingFormPr
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="heatingHT">Hochtarif (HT)</Label>
+                <Label htmlFor="heatingHT">{getMeterLabel('heating_ht', 'Hochtarif (HT)')}</Label>
                 <Input
                   id="heatingHT"
                   type="number"
@@ -179,7 +186,7 @@ export const MeterReadingForm = ({ onSubmit, defaultValues }: MeterReadingFormPr
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="heatingNT">Niedertarif (NT)</Label>
+                <Label htmlFor="heatingNT">{getMeterLabel('heating_nt', 'Niedertarif (NT)')}</Label>
                 <Input
                   id="heatingNT"
                   type="number"
@@ -202,7 +209,7 @@ export const MeterReadingForm = ({ onSubmit, defaultValues }: MeterReadingFormPr
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="pvYield">PV Ertrag</Label>
+                <Label htmlFor="pvYield">{getMeterLabel('pv_yield', 'PV Ertrag')}</Label>
                 <Input
                   id="pvYield"
                   type="number"
@@ -215,7 +222,7 @@ export const MeterReadingForm = ({ onSubmit, defaultValues }: MeterReadingFormPr
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="pvFeedIn">Einspeisung</Label>
+                <Label htmlFor="pvFeedIn">{getMeterLabel('pv_feed_in', 'Einspeisung')}</Label>
                 <Input
                   id="pvFeedIn"
                   type="number"
