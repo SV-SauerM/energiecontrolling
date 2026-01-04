@@ -9,9 +9,10 @@ interface StatCardProps {
   icon: ReactNode;
   type: 'water' | 'electricity' | 'heating' | 'solar';
   previousValue?: number;
+  meterNumber?: string | null;
 }
 
-export const StatCard = ({ title, value, unit, icon, type, previousValue }: StatCardProps) => {
+export const StatCard = ({ title, value, unit, icon, type, previousValue, meterNumber }: StatCardProps) => {
   const getCardClass = () => {
     switch (type) {
       case 'water': return 'stat-card-water';
@@ -77,6 +78,9 @@ export const StatCard = ({ title, value, unit, icon, type, previousValue }: Stat
       </div>
       
       <h3 className="text-sm font-medium text-muted-foreground mb-1">{title}</h3>
+      {meterNumber && (
+        <p className="text-xs text-muted-foreground/70 font-mono mb-1">Nr. {meterNumber}</p>
+      )}
       
       <div className="flex items-baseline gap-1">
         <span className={`text-2xl lg:text-3xl font-bold font-mono ${getTextClass()}`}>
