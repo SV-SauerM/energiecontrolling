@@ -1,9 +1,10 @@
-import { MeterReading } from '@/types/energy';
+import { MeterReading, MeterReplacement, METER_TYPE_LABELS } from '@/types/energy';
 import { generateId } from './energyUtils';
 
 // CSV Headers in German
 const CSV_HEADERS = [
   'Datum',
+  'Typ',
   'Kaltwasser',
   'Gartenwasser',
   'Strom_Licht',
@@ -11,27 +12,66 @@ const CSV_HEADERS = [
   'Heizung_NT',
   'PV_Ertrag',
   'PV_Einspeisung',
+  'Zaehlerwechsel_Zaehlertyp',
+  'Zaehlerwechsel_Alter_Endstand',
+  'Zaehlerwechsel_Neuer_Anfangsstand',
+  'Zaehlerwechsel_Notizen',
 ];
 
-export const exportToCSV = (readings: MeterReading[]): string => {
-  const sortedReadings = [...readings].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-  );
+export interface ExportData {
+  readings: MeterReading[];
+  replacements: MeterReplacement[];
+}
 
-  const rows = sortedReadings.map((reading) => [
-    reading.date,
-    reading.coldWater.toString().replace('.', ','),
-    reading.gardenWater.toString().replace('.', ','),
-    reading.electricityLight.toString().replace('.', ','),
-    reading.heatingHT.toString().replace('.', ','),
-    reading.heatingNT.toString().replace('.', ','),
-    reading.pvYield.toString().replace('.', ','),
-    reading.pvFeedIn.toString().replace('.', ','),
-  ]);
+export const exportToCSV = (data: ExportData): string => {
+  const { readings, replacements } = data;
+  
+  // Create a combined list of entries sorted by date
+  type ExportRow = {
+    date: string;
+    type: 'reading' | 'replacement';
+    reading?: MeterReading;
+    replacement?: MeterReplacement;
+  };
+
+  const rows: ExportRow[] = [
+    ...readings.map((r) => ({ date: r.date, type: 'reading' as const, reading: r })),
+    ...replacements.map((r) => ({ date: r.date, type: 'replacement' as const, replacement: r })),
+  ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  const csvRows = rows.map((row) => {
+    if (row.type === 'reading' && row.reading) {
+      const r = row.reading;
+      return [
+        r.date,
+        'Ablesung',
+        r.coldWater.toString().replace('.', ','),
+        r.gardenWater.toString().replace('.', ','),
+        r.electricityLight.toString().replace('.', ','),
+        r.heatingHT.toString().replace('.', ','),
+        r.heatingNT.toString().replace('.', ','),
+        r.pvYield.toString().replace('.', ','),
+        r.pvFeedIn.toString().replace('.', ','),
+        '', '', '', '',
+      ];
+    } else if (row.type === 'replacement' && row.replacement) {
+      const r = row.replacement;
+      return [
+        r.date,
+        'Zählerwechsel',
+        '', '', '', '', '', '', '',
+        METER_TYPE_LABELS[r.meterType],
+        r.oldFinalReading.toString().replace('.', ','),
+        r.newInitialReading.toString().replace('.', ','),
+        r.notes || '',
+      ];
+    }
+    return [];
+  });
 
   const csvContent = [
     CSV_HEADERS.join(';'),
-    ...rows.map((row) => row.join(';')),
+    ...csvRows.map((row) => row.join(';')),
   ].join('\n');
 
   return csvContent;
@@ -205,8 +245,9 @@ const parseDate = (dateStr: string): string | null => {
 };
 
 export const generateSampleCSV = (): string => {
-  return `Datum;Kaltwasser;Gartenwasser;Strom_Licht;Heizung_HT;Heizung_NT;PV_Ertrag;PV_Einspeisung
-2024-01-01;100;20;5000;3000;2000;200;150
-2024-02-01;112;20;5280;3450;2300;380;280
-2024-03-01;124;22;5520;3800;2520;650;480`;
+  return `Datum;Typ;Kaltwasser;Gartenwasser;Strom_Licht;Heizung_HT;Heizung_NT;PV_Ertrag;PV_Einspeisung;Zaehlerwechsel_Zaehlertyp;Zaehlerwechsel_Alter_Endstand;Zaehlerwechsel_Neuer_Anfangsstand;Zaehlerwechsel_Notizen
+2024-01-01;Ablesung;100;20;5000;3000;2000;200;150;;;;
+2024-02-01;Ablesung;112;20;5280;3450;2300;380;280;;;;
+2024-03-01;Zählerwechsel;;;;;;;;;Kaltwasser;124;0;Zähler getauscht wegen Defekt
+2024-03-01;Ablesung;0;22;5520;3800;2520;650;480;;;;`;
 };

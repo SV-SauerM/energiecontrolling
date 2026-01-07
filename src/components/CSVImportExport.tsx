@@ -15,16 +15,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MeterReading } from '@/types/energy';
-import { exportToCSV, downloadCSV, parseCSV, generateSampleCSV, CSVParseResult } from '@/lib/csvUtils';
+import { MeterReading, MeterReplacement } from '@/types/energy';
+import { exportToCSV, downloadCSV, parseCSV, generateSampleCSV, CSVParseResult, ExportData } from '@/lib/csvUtils';
 import { toast } from '@/hooks/use-toast';
 
 interface CSVImportExportProps {
   readings: MeterReading[];
+  replacements: MeterReplacement[];
   onImport: (readings: MeterReading[]) => void;
 }
 
-export const CSVImportExport = ({ readings, onImport }: CSVImportExportProps) => {
+export const CSVImportExport = ({ readings, replacements, onImport }: CSVImportExportProps) => {
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [parseResult, setParseResult] = useState<CSVParseResult | null>(null);
@@ -32,7 +33,7 @@ export const CSVImportExport = ({ readings, onImport }: CSVImportExportProps) =>
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleExport = () => {
-    if (readings.length === 0) {
+    if (readings.length === 0 && replacements.length === 0) {
       toast({
         title: 'Keine Daten',
         description: 'Es sind keine Zählerstände zum Exportieren vorhanden.',
@@ -41,13 +42,14 @@ export const CSVImportExport = ({ readings, onImport }: CSVImportExportProps) =>
       return;
     }
 
-    const csv = exportToCSV(readings);
+    const exportData: ExportData = { readings, replacements };
+    const csv = exportToCSV(exportData);
     const filename = `zaehlerstaende_${new Date().toISOString().split('T')[0]}.csv`;
     downloadCSV(csv, filename);
     
     toast({
       title: 'Export erfolgreich',
-      description: `${readings.length} Einträge wurden exportiert.`,
+      description: `${readings.length} Ablesungen und ${replacements.length} Zählerwechsel wurden exportiert.`,
     });
   };
 
