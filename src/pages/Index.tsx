@@ -16,6 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 const Index = () => {
   const {
     meterReadings,
+    meterReplacements,
     consumptionData,
     yearlyData,
     warnings,
@@ -74,7 +75,7 @@ const Index = () => {
             </p>
           </div>
           <div className="flex gap-2">
-            <CSVImportExport readings={meterReadings} onImport={setReadings} />
+            <CSVImportExport readings={meterReadings} replacements={meterReplacements} onImport={setReadings} />
             <MeterReadingForm 
               onSubmit={addReading} 
               defaultValues={latestReading ?? undefined}
