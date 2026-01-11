@@ -95,7 +95,7 @@ const DataManagement = () => {
                   Noch keine Zählerstände vorhanden.
                 </p>
               ) : (
-                <div className="overflow-x-auto">
+                <div className="overflow-auto max-h-[60vh]">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -198,7 +198,7 @@ const DataManagement = () => {
                   Noch keine Zählerwechsel dokumentiert.
                 </p>
               ) : (
-                <div className="overflow-x-auto">
+                <div className="overflow-auto max-h-[60vh]">
                   <Table>
                     <TableHeader>
                       <TableRow>
