@@ -4,6 +4,7 @@ import { StatCard } from '@/components/StatCard';
 import { MeterReadingForm } from '@/components/MeterReadingForm';
 import { WarningBanner } from '@/components/WarningBanner';
 import { CSVImportExport } from '@/components/CSVImportExport';
+import { PVYearlyReportButton } from '@/components/PVYearlyReportButton';
 import { WaterChart } from '@/components/charts/WaterChart';
 import { ElectricityChart } from '@/components/charts/ElectricityChart';
 import { HeatingChart } from '@/components/charts/HeatingChart';
@@ -75,6 +76,7 @@ const Index = () => {
             </p>
           </div>
           <div className="flex gap-2">
+            <PVYearlyReportButton data={consumptionData} />
             <CSVImportExport readings={meterReadings} replacements={meterReplacements} onImport={setReadings} />
             <MeterReadingForm 
               onSubmit={addReading} 
